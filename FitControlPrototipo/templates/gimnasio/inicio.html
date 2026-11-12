@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <h1>
+                Inicio
+            </h1>
+            <p>
+                Bienvenido,
+                {{ nombre_corto }}
+                . Aquí puedes consultar el resumen del gimnasio.
+            </p>
+        </div>
+    </div>
+    <div class="stats">
+        {% for label,value,note in stats %}
+            <div class="stat">
+                <span>
+                    {{ label }}
+                </span>
+                <strong>
+                    {{ value }}
+                </strong>
+            </div>
+        {% endfor %}
+    </div>
+    <section class="panel">
+        <div class="section-heading">
+            <h2>
+                Accesos rápidos
+            </h2>
+        </div>
+        <div class="accesos">
+            {% if rol == 'Administrador' %}
+                <a class="btn primary" href="{% url 'nuevo' 'socios' %}">
+                    Registrar socio
+                </a>
+                <a class="btn subtle" href="{% url 'nuevo' 'membresias' %}">
+                    Asignar membresía
+                </a>
+                <a class="btn subtle" href="{% url 'nuevo' 'clases' %}">
+                    Crear clase
+                </a>
+                <a class="btn subtle" href="{% url 'asistencias' %}">
+                    Registrar ingreso
+                </a>
+            {% else %}
+                <a class="btn primary" href="{% url 'clases' %}">
+                    Consultar clases
+                </a>
+                <a class="btn subtle" href="{% url 'perfil' %}">
+                    Editar mi perfil
+                </a>
+            {% endif %}
+        </div>
+    </section>
+    <section class="panel">
+        <div class="section-heading">
+            <h2>
+                Próximas clases
+            </h2>
+            <a href="{% url 'clases' %}">
+                Ver todas
+            </a>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            Clase
+                        </th>
+                        <th>
+                            Fecha
+                        </th>
+                        <th>
+                            Hora
+                        </th>
+                        <th>
+                            Entrenador
+                        </th>
+                        <th>
+                            Cupos libres
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for clase in clases %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'clase' clase.pk %}">
+                                    {{ clase.nombre }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ clase.fecha|date:'d/m/Y' }}
+                            </td>
+                            <td>
+                                {{ clase.hora|time:'H:i' }}
+                            </td>
+                            <td>
+                                {{ clase.entrenador.nombre }}
+                            </td>
+                            <td>
+                                {{ clase.cupos_disponibles }}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                No hay clases próximas.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% if rol == 'Administrador' %}
+        <section class="panel">
+            <div class="section-heading">
+                <h2>
+                    Membresías por vencer
+                </h2>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                Socio
+                            </th>
+                            <th>
+                                Plan
+                            </th>
+                            <th>
+                                Vencimiento
+                            </th>
+                            <th>
+                                Acción
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in vencimientos %}
+                            <tr>
+                                <td>
+                                    {{ m.socio.nombre }}
+                                </td>
+                                <td>
+                                    {{ m.tipo_plan }}
+                                </td>
+                                <td>
+                                    {{ m.fecha_fin|date:'d/m/Y' }}
+                                </td>
+                                <td>
+                                    <a href="{% url 'editar' 'membresias' m.pk %}?renovar=1">
+                                        Renovar
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4">
+                                    No hay membresías para mostrar.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% elif rol == 'Socio' %}
+        <section class="panel">
+            <div class="section-heading">
+                <h2>
+                    Últimas reservas
+                </h2>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                Clase
+                            </th>
+                            <th>
+                                Fecha
+                            </th>
+                            <th>
+                                Estado
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reserva in actividad %}
+                            <tr>
+                                <td>
+                                    {{ reserva.clase.nombre }}
+                                </td>
+                                <td>
+                                    {{ reserva.clase.fecha|date:'d/m/Y' }}
+                                </td>
+                                <td>
+                                    {{ reserva.estado }}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3">
+                                    No tienes reservas registradas.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

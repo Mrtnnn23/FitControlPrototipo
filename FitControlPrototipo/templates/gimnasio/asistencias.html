@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <span class="eyebrow">
+                CADA INGRESO CUENTA
+            </span>
+            <h1>
+                Asistencias
+            </h1>
+            <p>
+                Registra el ingreso al gimnasio y consulta la actividad.
+            </p>
+        </div>
+    </div>
+    <section class="panel checkin">
+        <div>
+            <span class="eyebrow">
+                CHECK-IN RÁPIDO
+            </span>
+            <h2>
+                Registrar ingreso
+            </h2>
+            <p>
+                Verificaremos la vigencia de la membresía antes de registrar el ingreso.
+            </p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <label for="identificador">
+                RUT o identificador del socio
+            </label>
+            <div class="inline-form">
+                <input id="identificador" name="identificador" required placeholder="12.345.678-5" autofocus>
+                <button class="btn primary">
+                    Registrar ingreso
+                </button>
+            </div>
+        </form>
+    </section>
+    <section class="panel">
+        <div class="section-heading">
+            <h2>
+                Últimos 100 registros
+            </h2>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            Socio
+                        </th>
+                        <th>
+                            Fecha
+                        </th>
+                        <th>
+                            Hora
+                        </th>
+                        <th>
+                            Actividad
+                        </th>
+                        <th>
+                            Estado
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in asistencias %}
+                        <tr>
+                            <td>
+                                {{ a.socio.nombre }}
+                            </td>
+                            <td>
+                                {{ a.fecha|date:'d/m/Y' }}
+                            </td>
+                            <td>
+                                {{ a.hora_entrada|time:'H:i' }}
+                            </td>
+                            <td>
+                                {{ a.clase.nombre|default:'Ingreso al gimnasio' }}
+                            </td>
+                            <td>
+                                <span class="badge green">
+                                    {{ a.estado }}
+                                </span>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty">
+                                    Los ingresos aparecerán aquí.
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

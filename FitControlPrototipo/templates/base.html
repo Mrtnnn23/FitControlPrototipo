@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+            {% block title %}
+                FitControl
+            {% endblock %}
+        </title>
+        <link rel="stylesheet" href="{% static 'fitcontrol.css' %}">
+    </head>
+    <body>
+        <header class="cabecera">
+            <div class="cabecera-contenido">
+                <a class="logo" href="{% url 'inicio' %}">
+                    FitControl
+                </a>
+                <span>
+                    Administración de gimnasio
+                </span>
+            </div>
+        </header>
+        <nav class="menu" aria-label="Navegación principal">
+            <a href="{% url 'inicio' %}">
+                Inicio
+            </a>
+            {% if rol == 'Administrador' %}
+                <a href="{% url 'registros' 'socios' %}">
+                    Socios
+                </a>
+                <a href="{% url 'registros' 'membresias' %}">
+                    Membresías
+                </a>
+                <a href="{% url 'registros' 'pagos' %}">
+                    Pagos
+                </a>
+                <a href="{% url 'registros' 'entrenadores' %}">
+                    Entrenadores
+                </a>
+            {% elif rol == 'Socio' %}
+                <a href="{% url 'mi_membresia' %}">
+                    Mi membresía
+                </a>
+            {% endif %}
+            <a href="{% url 'clases' %}">
+                {% if rol == 'Entrenador' %}
+                    Mis clases
+                {% else %}
+                    Clases
+                {% endif %}
+            </a>
+            {% if rol == 'Administrador' or rol == 'Socio' %}
+                <a href="{% url 'reservas' %}">
+                    Reservas
+                </a>
+            {% endif %}
+            {% if rol == 'Administrador' %}
+                <a href="{% url 'asistencias' %}">
+                    Asistencias
+                </a>
+                <a href="{% url 'reportes' %}">
+                    Reportes
+                </a>
+            {% elif rol == 'Socio' or rol == 'Entrenador' %}
+                <a href="{% url 'perfil' %}">
+                    Mi perfil
+                </a>
+            {% endif %}
+        </nav>
+        <main class="contenedor">
+            <div class="sesion">
+                <span>
+                    {{ user.first_name|default:user.username }}
+                    ·
+                    {{ rol }}
+                </span>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="btn subtle" type="submit">
+                        Cerrar sesión
+                    </button>
+                </form>
+            </div>
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}" role="status">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {% block content %}
+            {% endblock %}
+        </main>
+        <footer>
+            FitControl · Prototipo de gestión de gimnasio
+        </footer>
+        <script src="{% static 'fitcontrol.js' %}">
+        </script>
+    </body>
+</html>

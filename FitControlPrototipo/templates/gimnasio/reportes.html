@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <span class="eyebrow">
+                DATOS PARA DECIDIR MEJOR
+            </span>
+            <h1>
+                Reportes
+            </h1>
+            <p>
+                Consulta la información de tu gimnasio por período.
+            </p>
+        </div>
+        <a class="btn primary" href="?tipo={{ tipo }}&desde={{ desde }}&hasta={{ hasta }}&exportar=csv">
+            Exportar CSV
+        </a>
+    </div>
+    <form method="get" class="panel report-filters">
+        <div class="field">
+            <label for="tipo">
+                Información
+            </label>
+            <select id="tipo" name="tipo">
+                <option value="socios" {% if tipo == 'socios' %}selected{% endif %}>
+                    Socios
+                </option>
+                <option value="membresias" {% if tipo == 'membresias' %}selected{% endif %}>
+                    Membresías
+                </option>
+                <option value="pagos" {% if tipo == 'pagos' %}selected{% endif %}>
+                    Pagos
+                </option>
+                <option value="asistencias" {% if tipo == 'asistencias' %}selected{% endif %}>
+                    Asistencias
+                </option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="desde">
+                Desde
+            </label>
+            <input type="date" id="desde" name="desde" value="{{ desde }}">
+        </div>
+        <div class="field">
+            <label for="hasta">
+                Hasta
+            </label>
+            <input type="date" id="hasta" name="hasta" value="{{ hasta }}">
+        </div>
+        <button class="btn dark">
+            Consultar
+        </button>
+    </form>
+    <div class="report-summary">
+        <span>
+            <strong>
+                {{ total }}
+            </strong>
+            registros encontrados
+        </span>
+        {% if suma != None %}
+            <span>
+                <strong>
+                    $
+                    {{ suma }}
+                </strong>
+                CLP en pagos confirmados
+            </span>
+        {% endif %}
+    </div>
+    <section class="panel">
+        <div class="section-heading">
+            <h2>
+                Resultados
+            </h2>
+            <span class="badge">
+                {{ tipo|capfirst }}
+            </span>
+        </div>
+        <p class="table-note">
+            Período según fecha de registro del usuario, inicio de membresía, fecha de pago o asistencia. La vista muestra hasta 200 filas; el CSV incluye todos los resultados.
+        </p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        {% for col in columnas %}
+                            <th>
+                                {{ col }}
+                            </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fila in filas %}
+                        <tr>
+                            {% for celda in fila %}
+                                <td>
+                                    {{ celda }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty">
+                                    No hay resultados para el período seleccionado.
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

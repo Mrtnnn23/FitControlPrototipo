@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <span class="eyebrow">
+                DETALLE DE CLASE
+            </span>
+            <h1>
+                {{ clase.nombre }}
+            </h1>
+            <p>
+                {{ clase.descripcion }}
+            </p>
+        </div>
+        <a class="btn subtle" href="{% url 'clases' %}">
+            ← Volver a clases
+        </a>
+    </div>
+    <section class="stats">
+        <div class="stat">
+            <span class="stat-label">
+                Fecha y hora
+            </span>
+            <strong class="smaller">
+                {{ clase.fecha|date:'d M Y' }}
+            </strong>
+            <small>
+                {{ clase.hora|time:'H:i' }}
+                h
+            </small>
+        </div>
+        <div class="stat">
+            <span class="stat-label">
+                Entrenador
+            </span>
+            <strong class="smaller">
+                {{ clase.entrenador.nombre }}
+            </strong>
+            <small>
+                {{ clase.entrenador.especialidad }}
+            </small>
+        </div>
+        <div class="stat">
+            <span class="stat-label">
+                Cupos disponibles
+            </span>
+            <strong>
+                {{ clase.cupos_disponibles }}
+                <em>
+                    /
+                    {{ clase.cupo_maximo }}
+                </em>
+            </strong>
+            <small>
+                {{ clase.estado }}
+            </small>
+        </div>
+    </section>
+    {% if rol == 'Socio' %}
+        <section class="panel callout">
+            <div>
+                <h2>
+                    Reservar clase
+                </h2>
+                <p>
+                    Necesitas una membresía vigente hoy y el día de la clase.
+                </p>
+            </div>
+            {% if clase.consultar_disponibilidad %}
+                <form method="post" action="{% url 'reservas' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="clase" value="{{ clase.pk }}">
+                    <button class="btn primary">
+                        Reservar mi cupo
+                    </button>
+                </form>
+            {% else %}
+                <span class="badge">
+                    Clase no disponible
+                </span>
+            {% endif %}
+        </section>
+    {% else %}
+        <section class="panel">
+            <div class="section-heading">
+                <h2>
+                    Participantes inscritos
+                </h2>
+                {% if rol == 'Administrador' %}
+                    <a class="btn subtle" href="{% url 'editar' 'clases' clase.pk %}">
+                        Editar clase
+                    </a>
+                {% endif %}
+            </div>
+            <form method="post" action="{% url 'asistencia_clase' clase.pk %}">
+                {% csrf_token %}
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>
+                                    Socio
+                                </th>
+                                <th>
+                                    RUT
+                                </th>
+                                <th>
+                                    Presente
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reserva in reservas %}
+                                <tr>
+                                    <td>
+                                        {{ reserva.socio.nombre }}
+                                    </td>
+                                    <td>
+                                        {{ reserva.socio.rut }}
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" name="presentes" value="{{ reserva.socio.pk }}" aria-label="Presente: {{ reserva.socio.nombre }}" {% if reserva.socio_id in presentes %}checked{% endif %}>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3">
+                                        Todavía no hay participantes inscritos.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-actions">
+                    <span class="muted">
+                        Marca presentes y guarda la lista completa.
+                    </span>
+                    <button class="btn primary">
+                        Guardar asistencia
+                    </button>
+                </div>
+            </form>
+        </section>
+        {% if rol == 'Administrador' and clase.estado == 'Programada' %}
+            <form method="post" action="{% url 'cancelar_clase' clase.pk %}" class="danger-zone" data-confirm="¿Cancelar esta clase y todas sus reservas?">
+                {% csrf_token %}
+                <button class="btn danger">
+                    Cancelar clase y reservas
+                </button>
+            </form>
+        {% endif %}
+    {% endif %}
+{% endblock %}

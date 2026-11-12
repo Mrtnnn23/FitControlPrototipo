@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>
+            Iniciar sesión · FitControl
+        </title>
+        <link rel="stylesheet" href="{% static 'fitcontrol.css' %}">
+    </head>
+    <body>
+        <header class="cabecera">
+            <div class="cabecera-contenido">
+                <span class="logo">
+                    FitControl
+                </span>
+                <span>
+                    Administración de gimnasio
+                </span>
+            </div>
+        </header>
+        <main class="login-panel">
+            <h1>
+                Iniciar sesión
+            </h1>
+            <p>
+                Ingresa con el correo y contraseña de tu cuenta.
+            </p>
+            {% if form.errors %}
+                <div class="alert error">
+                    Correo o contraseña incorrectos.
+                </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <label for="id_username">
+                    Correo electrónico
+                </label>
+                <input id="id_username" name="username" type="email" value="{{ form.username.value|default:'' }}" autocomplete="username" required>
+                <label for="id_password">
+                    Contraseña
+                </label>
+                <input id="id_password" name="password" type="password" autocomplete="current-password" required>
+                <input type="hidden" name="next" value="{{ next }}">
+                <button class="btn primary" type="submit">
+                    Ingresar
+                </button>
+            </form>
+            <p class="ayuda">
+                Si no tienes cuenta, solicítala al administrador.
+            </p>
+        </main>
+        <footer>
+            FitControl · Prototipo de gestión de gimnasio
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <h1>
+                {% if rol == 'Entrenador' %}
+                    Mis clases
+                {% else %}
+                    Clases
+                {% endif %}
+            </h1>
+            <p>
+                Consulta los horarios y la disponibilidad.
+            </p>
+        </div>
+        {% if rol == 'Administrador' %}
+            <a class="btn primary" href="{% url 'nuevo' 'clases' %}">
+                Crear clase
+            </a>
+        {% endif %}
+    </div>
+    <form class="filterbar" method="get">
+        <input type="search" name="q" value="{{ q }}" placeholder="Nombre de la clase" aria-label="Buscar clase">
+        <select name="agenda" aria-label="Período">
+            <option value="proximas">
+                Próximas clases
+            </option>
+            <option value="todas" {% if request.GET.agenda == 'todas' %}selected{% endif %}>
+                Todas las fechas
+            </option>
+        </select>
+        <button class="btn primary">
+            Buscar
+        </button>
+    </form>
+    <section class="panel">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            Nombre
+                        </th>
+                        <th>
+                            Fecha
+                        </th>
+                        <th>
+                            Hora
+                        </th>
+                        <th>
+                            Entrenador
+                        </th>
+                        <th>
+                            Cupos libres
+                        </th>
+                        <th>
+                            Estado
+                        </th>
+                        <th>
+                            Acción
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for clase in clases %}
+                        <tr>
+                            <td>
+                                {{ clase.nombre }}
+                            </td>
+                            <td>
+                                {{ clase.fecha|date:'d/m/Y' }}
+                            </td>
+                            <td>
+                                {{ clase.hora|time:'H:i' }}
+                            </td>
+                            <td>
+                                {{ clase.entrenador.nombre }}
+                            </td>
+                            <td>
+                                {{ clase.cupos_disponibles }}
+                                /
+                                {{ clase.cupo_maximo }}
+                            </td>
+                            <td>
+                                {{ clase.estado }}
+                            </td>
+                            <td>
+                                <a href="{% url 'clase' clase.pk %}">
+                                    Ver detalle
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7">
+                                No se encontraron clases.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

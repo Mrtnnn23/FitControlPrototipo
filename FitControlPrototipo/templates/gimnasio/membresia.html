@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <h1>
+                Mi membresía
+            </h1>
+            <p>
+                Consulta el plan contratado y sus fechas.
+            </p>
+        </div>
+    </div>
+    <section class="panel">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            Plan
+                        </th>
+                        <th>
+                            Precio CLP
+                        </th>
+                        <th>
+                            Inicio
+                        </th>
+                        <th>
+                            Vencimiento
+                        </th>
+                        <th>
+                            Estado
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in membresias %}
+                        <tr>
+                            <td>
+                                {{ m.tipo_plan }}
+                            </td>
+                            <td>
+                                $
+                                {{ m.precio }}
+                            </td>
+                            <td>
+                                {{ m.fecha_inicio|date:'d/m/Y' }}
+                            </td>
+                            <td>
+                                {{ m.fecha_fin|date:'d/m/Y' }}
+                            </td>
+                            <td>
+                                {% if m.verificar_vigencia %}
+                                    Vigente
+                                {% else %}
+                                    No vigente (
+                                    {{ m.estado }}
+                                    )
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                Aún no tienes una membresía asignada.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <p>
+        Para renovar tu membresía, contacta al administrador.
+    </p>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <span class="eyebrow">
+                TU PRÓXIMO ENCUENTRO
+            </span>
+            <h1>
+                {% if rol == 'Socio' %}
+                    Mis reservas
+                {% else %}
+                    Reservas
+                {% endif %}
+            </h1>
+            <p>
+                Consulta las reservas y su estado.
+            </p>
+        </div>
+        <a class="btn subtle" href="{% url 'clases' %}">
+            Explorar clases
+        </a>
+    </div>
+    {% if rol == 'Administrador' %}
+        <section class="panel">
+            <div class="section-heading">
+                <h2>
+                    Registrar una reserva
+                </h2>
+            </div>
+            <form method="post" class="filterbar">
+                {% csrf_token %}
+                <select name="socio" aria-label="Socio" required>
+                    <option value="">
+                        Selecciona un socio
+                    </option>
+                    {% for socio in socios %}
+                        <option value="{{ socio.pk }}">
+                            {{ socio.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select name="clase" aria-label="Clase" required>
+                    <option value="">
+                        Selecciona una clase
+                    </option>
+                    {% for clase in clases %}
+                        <option value="{{ clase.pk }}">
+                            {{ clase }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button class="btn primary">
+                    Confirmar reserva
+                </button>
+            </form>
+        </section>
+    {% endif %}
+    <section class="panel">
+        <div class="section-heading">
+            <h2>
+                Historial de reservas
+            </h2>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            Clase
+                        </th>
+                        {% if rol == 'Administrador' %}
+                            <th>
+                                Socio
+                            </th>
+                        {% endif %}
+                        <th>
+                            Fecha y hora
+                        </th>
+                        <th>
+                            Estado
+                        </th>
+                        <th>
+                            Acción
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'clase' reserva.clase_id %}">
+                                    {{ reserva.clase.nombre }}
+                                </a>
+                            </td>
+                            {% if rol == 'Administrador' %}
+                                <td>
+                                    {{ reserva.socio.nombre }}
+                                </td>
+                            {% endif %}
+                            <td>
+                                {{ reserva.clase.fecha|date:'d/m/Y' }}
+                                ·
+                                {{ reserva.clase.hora|time:'H:i' }}
+                            </td>
+                            <td>
+                                <span class="badge {% if reserva.estado == 'Confirmada' %}green{% endif %}">
+                                    {{ reserva.estado }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if reserva.estado == 'Confirmada' and reserva.clase.futura %}
+                                    <form method="post" action="{% url 'cancelar_reserva' reserva.pk %}" data-confirm="¿Cancelar esta reserva y liberar el cupo?">
+                                        {% csrf_token %}
+                                        <button class="text-button">
+                                            Cancelar reserva
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty">
+                                    <h3>
+                                        No hay reservas
+                                    </h3>
+                                    <p>
+                                        Reserva desde la sección de clases y horarios.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}
